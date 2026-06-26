@@ -18,6 +18,20 @@ const Display = ({text, state}) => {
   )
 }
 
+const Statistics = ({good, neutral, bad, point, total}) => {
+  return(
+    <>
+      <Header text={"statistics"}/>
+      <Display text={"good"} state={good}/>
+      <Display text={"neutral"} state={neutral}/>
+      <Display text={"bad"} state={bad}/>
+      <Display text={"all"} state={total}/>
+      <Display text={"average"} state={point / total}/>
+      <Display text={"positive"} state={good / total}/> 
+    </>
+  )
+}
+
 const App = () => {
   // save clicks of each button to its own state
   const [good, setGood] = useState(0)
@@ -53,13 +67,7 @@ const App = () => {
       <Button onClick={handleGood} text={"good"}/>
       <Button onClick={handleNeutral} text={"neutral"}/>
       <Button onClick={handleBad} text={"bad"}/>
-      <Header text={"statistics"}/>
-      <Display text={"good"} state={good}/>
-      <Display text={"neutral"} state={neutral}/>
-      <Display text={"bad"} state={bad}/>
-      <Display text={"all"} state={total}/>
-      <Display text={"average"} state={point / total}/>
-      <Display text={"positive"} state={good / total}/>
+      <Statistics good={good} neutral={neutral} bad={bad} point={point} total={total}/>
     </div>
   )
 }
