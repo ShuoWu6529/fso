@@ -19,17 +19,26 @@ const Display = ({text, state}) => {
 }
 
 const Statistics = ({good, neutral, bad, point, total}) => {
-  return(
-    <>
-      <Header text={"statistics"}/>
-      <Display text={"good"} state={good}/>
-      <Display text={"neutral"} state={neutral}/>
-      <Display text={"bad"} state={bad}/>
-      <Display text={"all"} state={total}/>
-      <Display text={"average"} state={point / total}/>
-      <Display text={"positive"} state={good / total}/> 
-    </>
-  )
+  if (total) {
+    return (
+      <>
+        <Header text={"statistics"}/>
+        <Display text={"good"} state={good}/>
+        <Display text={"neutral"} state={neutral}/>
+        <Display text={"bad"} state={bad}/>
+        <Display text={"all"} state={total}/>
+        <Display text={"average"} state={point / total}/>
+        <Display text={"positive"} state={good / total}/> 
+      </>
+    )
+  } else {
+    return (
+      <>
+        <Header text={"statistics"}/>
+        <p>No feedback given</p>
+      </>
+    )
+  }
 }
 
 const App = () => {
