@@ -51,7 +51,7 @@ const App = () => {
       .then(response => {
         setPersons(response.data)
       })
-  })
+  }, [])
 
   const addPerson = (event) => {
     event.preventDefault()
