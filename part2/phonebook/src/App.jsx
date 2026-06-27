@@ -34,7 +34,7 @@ const PersonForm = ({onSubmit, name, nameOnChange, number, numberOnChange}) => {
 const Persons = ({personToShow}) => {
   return (
     <>
-      {personToShow.map(name => <Number key={name.name} person={name}/>)}
+      {personToShow.map(name => <Number key={name.id} person={name}/>)}
     </>
   )
 }
@@ -60,7 +60,11 @@ const App = () => {
       alert(`${newName} is already added to phonebook`)
       return
     }
-    setPersons(persons.concat(personObject))
+    axios
+      .post(`http://localhost:3001/persons`, personObject)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+      })
     setNewName('')
     setNewNumber('')
   }
