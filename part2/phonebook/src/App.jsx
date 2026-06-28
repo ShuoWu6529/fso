@@ -83,6 +83,9 @@ const App = () => {
   }
 
   const handleDelete = (event) => {
+    if (!window.confirm("Delete?")) {
+      return
+    }
     const id = event.target.id
     personService
       .remove(id)
