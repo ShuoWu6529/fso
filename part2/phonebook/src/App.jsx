@@ -56,16 +56,26 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-    const personObject = { name: newName, number: newNumber }
-    if (persons.findIndex(person => person.name === newName) != -1) {
-      alert(`${newName} is already added to phonebook`)
-      return
+    const index = persons.findIndex(person => person.name === newName)
+    if (index != -1) {
+      if (!window.confirm(`${newName} is already added to the phonebook, replace old number with new one?`)) {
+        return
+      }
+      const changedObject =  {...persons[index], number: newNumber}
+      personService
+        .update(changedObject.id, changedObject)
+        .then(data => {
+          setPersons(persons.map(person => person.id === changedObject.id ? changedObject : person))
+        })
     }
-    personService
-      .create(personObject)
-      .then(initialData => {
-        setPersons(persons.concat(initialData))
-      })
+    else {
+      const personObject = { name: newName, number: newNumber }
+      personService
+        .create(personObject)
+        .then(initialData => {
+          setPersons(persons.concat(initialData))
+        })
+    }
     setNewName('')
     setNewNumber('')
   }
