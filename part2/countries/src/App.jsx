@@ -1,6 +1,25 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
+const CountryToShow = ({country}) => {
+  const [showInformation, setShowInformation] = useState(false)
+  const handleShow = (event) => {
+    setShowInformation(!showInformation)
+  }
+
+  let info = <div></div>;
+  if (showInformation) {
+    info = <Country country={country} />
+  } 
+
+  return (
+    <>
+      <p>{country.name.common} <button onClick={handleShow}>{showInformation ? "Hide" : "Show"}</button> </p>
+      {info}
+    </>
+  )
+}
+
 const ShowCountries = ({showCountry, countries}) => {
   const countryToShow = 
     showCountry === "" 
@@ -17,7 +36,7 @@ const ShowCountries = ({showCountry, countries}) => {
   else if (countryToShow.length > 1) {
     return (
       <div>
-        {countryToShow.map(country => <p key={country.name.official}>{country.name.common}</p>)}
+        {countryToShow.map(country => <CountryToShow key={country.name.official} country={country}/>)}
       </div>
     )
   }
