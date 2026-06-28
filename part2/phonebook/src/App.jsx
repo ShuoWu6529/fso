@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from 'react'
 import personService from './services/persons'
+import Notification from './services/Notification'
 
 const Number = ({person, onClick}) => {
   return (
@@ -45,6 +46,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [showFilter, setShowFilter] = useState('')
+  const [message, setMessage] = useState({message: null, success: null})
 
   useEffect(() => {
     personService
@@ -66,6 +68,10 @@ const App = () => {
         .update(changedObject.id, changedObject)
         .then(data => {
           setPersons(persons.map(person => person.id === changedObject.id ? changedObject : person))
+          setMessage({message: `Updated ${newName}'s phone number`, success: true})
+          setTimeout(() => {
+            setMessage({message: null, success: null})
+          }, 5000)
         })
     }
     else {
@@ -74,8 +80,13 @@ const App = () => {
         .create(personObject)
         .then(initialData => {
           setPersons(persons.concat(initialData))
+          setMessage({message: `Added ${newName}`, success: true})
+          setTimeout(() => {
+            setMessage({message: null, success: null})
+          }, 5000)
         })
     }
+
     setNewName('')
     setNewNumber('')
   }
@@ -101,6 +112,17 @@ const App = () => {
       .remove(id)
       .then(data => {
         setPersons(persons.filter(person => person.id != id))
+        setMessage({message:'Successfully removed', success:true})
+        setTimeout(() => {
+          setMessage({message: null, success: null})
+        }, 5000)
+      })
+      .catch(data => {
+        setPersons(persons.filter(person => person.id != id))
+        setMessage({message:`Already removed`, success:false})
+        setTimeout(() => {
+          setMessage({message: null, success: null})
+        }, 5000)
       })
   }
 
@@ -109,6 +131,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={message.message} success={message.success}/>
       <Filter onChange={handleFilterChange} showFilter={showFilter} />
       <h2>add a new</h2>
       <PersonForm 
