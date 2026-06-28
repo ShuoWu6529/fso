@@ -2,10 +2,10 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 import personService from './services/persons'
 
-const Number = ({person}) => {
-    return (
-      <p> {person.name} {person.number} </p>
-    )
+const Number = ({person, onClick}) => {
+  return (
+      <p> {person.name} {person.number} <button id={person.id} onClick={onClick}>delete</button> </p>
+  )
 }
 
 const Filter = ({showFilter, onChange}) => {
@@ -32,10 +32,10 @@ const PersonForm = ({onSubmit, name, nameOnChange, number, numberOnChange}) => {
   )
 }
 
-const Persons = ({personToShow}) => {
+const Persons = ({personToShow, onClick}) => {
   return (
     <>
-      {personToShow.map(name => <Number key={name.id} person={name}/>)}
+      {personToShow.map(name => <Number key={name.id} person={name} onClick={onClick} />)}
     </>
   )
 }
@@ -82,6 +82,15 @@ const App = () => {
     setShowFilter(event.target.value)
   }
 
+  const handleDelete = (event) => {
+    const id = event.target.id
+    personService
+      .remove(id)
+      .then(data => {
+        setPersons(persons.filter(person => person.id != id))
+      })
+  }
+
   const personToShow = showFilter === "" ? persons : persons.filter(person => person.name.toLowerCase().includes(showFilter.toLowerCase()))
 
   return (
@@ -97,7 +106,7 @@ const App = () => {
         numberOnChange={handleNumberChange} 
       />
       <h2>Numbers</h2>
-      <Persons personToShow={personToShow} />
+      <Persons personToShow={personToShow} onClick={handleDelete} />
     </div>
   )
 }
