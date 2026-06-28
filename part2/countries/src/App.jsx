@@ -52,7 +52,33 @@ const ShowCountries = ({showCountry, countries}) => {
   )
 }
 
+const Weather = ({country}) => {
+  const [countryWeather, setCountryWeather] = useState(null)
+  const api_key = import.meta.env.VITE_SOME_KEY
+  useEffect(() => {
+    axios
+      .get(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${country}/?key=${api_key}`)
+      .then(response => {
+        setCountryWeather(response.data)
+      })
+  }, [])
+
+  if (!countryWeather) {
+    return (
+      <p>Still loading...</p>
+    )
+  }
+
+  return (
+    <>
+      <p>Temperature {countryWeather.days[0].temp} Fahrenheit</p>
+      <p>Wind {countryWeather.days[0].windspeed} m/s</p>
+    </>
+  )
+}
+
 const Country = ({country}) => {
+  
   return (
     <div>
       <h1>{country.name.common}</h1>
@@ -63,6 +89,8 @@ const Country = ({country}) => {
         {Object.values(country.languages).map(language => <li key={language}>{language}</li>)}
       </ul>
       <img src={country.flags.png}  />
+      <h2>Weather in {country.name.common}</h2>
+      <Weather country={country.name.common}/>
     </div>
   )
 }
