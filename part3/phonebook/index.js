@@ -4,6 +4,7 @@ const cors = require("cors")
 const app = express()
 
 app.use(cors())
+app.use(express.static('dist'))
 app.use(express.json())
 const data = (request, response) => {
     if (request.method === "POST") {
