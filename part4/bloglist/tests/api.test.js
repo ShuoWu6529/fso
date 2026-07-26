@@ -1,10 +1,11 @@
 const assert = require("node:assert")
-const { test, after, beforeEach } = require("node:test")
+const { test, after, beforeEach, describe } = require("node:test")
 const mongoose = require("mongoose")
 const supertest = require("supertest")
 const app = require("../app")
 const Blog = require("../models/blog")
-
+const User = require("../models/user")
+const { abort } = require("node:process")
 const api = supertest(app)
 
 const blogs = [
@@ -49,6 +50,27 @@ const blogs = [
         __v: 0
     },
 ]
+
+const initial = [
+    {
+        username: "root",
+        name: "superuser",
+        password: "china"
+    },
+    {
+        username: "jcao",
+        name: "jocelyn",
+        password: "america"
+    }
+]
+
+
+beforeEach(async () => {
+    await User.deleteMany({})
+    const userObjects = initial.map(user => new User(user))
+    const promiseArray = userObjects.map(user => user.save())
+    await Promise.all(promiseArray)
+})
 
 beforeEach(async () => {
     await Blog.deleteMany({})
@@ -148,6 +170,65 @@ test("updating like counts", async () => {
     }
     assert.deepStrictEqual(response.body.find(r => r.id === updatedBlog._id), cleanBlog)
 })
+
+describe("user testing", async () => {
+    test("users return as json", async () => {
+        await api
+            .get('/api/users')
+            .expect(200)
+            .expect('Content-Type', /application\/json/)
+    })
+
+    test("add valid user", async () => {
+        const newUser = {
+            username: "johncena",
+            name: "john",
+            password: "icecream"
+        }
+
+        await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(201)
+            .expect('Content-Type', /application\/json/)
+        
+        const response = await api.get('/api/users')
+        assert.strictEqual(response.body.length, initial.length + 1)
+    })
+
+    test("invalid username not added", async () => {
+        const invalidUser = {
+            username: "ab",
+            name: "trash",
+            password: "whoknows"
+        }
+
+        await api
+            .post('/api/users')
+            .send(invalidUser)
+            .expect(400)
+
+        const users = await api.get('/api/users')
+        assert.strictEqual(users.body.length, initial.length)
+    })
+
+    test('invalid password not added', async () => {
+        const invalidPass = {
+            username : "valid",
+            name : "whatever",
+            password : "a"
+        }
+
+        await api
+            .post('/api/users')
+            .send(invalidPass)
+            .expect(400)
+
+        const users = await api.get('/api/users')
+        assert.strictEqual(users.body.length, initial.length)
+    })
+})
+
 after(async () => {
     await mongoose.connection.close()
 })
