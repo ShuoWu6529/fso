@@ -124,6 +124,31 @@ test("missing field aren't added", async () => {
     assert.strictEqual(response.body.length, blogs.length)
 })
 
+test("deleting a note", async () => {
+    const blogToDelete = blogs[0]
+    await api.delete(`/api/blogs/${blogToDelete._id}`).expect(204)
+    const response = await api.get('/api/blogs')
+    const ids = response.body.map(blog => blog.id)
+    assert(!ids.includes(blogToDelete._id))
+    assert.strictEqual(response.body.length, blogs.length - 1)
+})
+
+test("updating like counts", async () => {
+    const blogToUpdate = blogs[0]
+    const updatedBlog = {...blogToUpdate, likes : 67}
+    await api
+        .put(`/api/blogs/${updatedBlog._id}`)
+        .send(updatedBlog)
+        .expect(200)
+        .expect('Content-Type', /application\/json/)
+    const response = await api.get('/api/blogs')
+    const { __v, _id, ...rest } = updatedBlog
+    const cleanBlog = {
+        ...rest,
+        id: updatedBlog._id
+    }
+    assert.deepStrictEqual(response.body.find(r => r.id === updatedBlog._id), cleanBlog)
+})
 after(async () => {
     await mongoose.connection.close()
 })
