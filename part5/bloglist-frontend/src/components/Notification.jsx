@@ -3,7 +3,7 @@ const Notification = ({ message, success }) => {
     return null
   }
 
-  const status = success ? "success" : "error"
+  const status = success ? 'success' : 'error'
 
   return (
     <div className={status}>

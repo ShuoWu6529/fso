@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
-import login from './services/login'
-import Notification from "./components/Notification";
+import Notification from './components/Notification'
 import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 import './index.css'
@@ -13,17 +12,17 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [message, setMessage] = useState({ message: null, success: null });
+  const [message, setMessage] = useState({ message: null, success: null })
   const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedInUser")
+    const loggedUserJSON = window.localStorage.getItem('loggedInUser')
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON)
       setUser(user)
@@ -34,23 +33,23 @@ const App = () => {
   const handleLogin = async event => {
     event.preventDefault()
     try {
-      const user = await loginService.login({username, password})
-      window.localStorage.setItem("loggedInUser", JSON.stringify(user))
+      const user = await loginService.login({ username, password })
+      window.localStorage.setItem('loggedInUser', JSON.stringify(user))
       setUser(user)
       blogService.setToken(user.token)
       setUsername('')
       setPassword('')
     } catch {
-      setMessage({ message: `Wrong username or password`, success: false });
+      setMessage({ message: 'Wrong username or password', success: false })
       setTimeout(() => {
-        setMessage({ message: null, success: null });
-      }, 5000);
+        setMessage({ message: null, success: null })
+      }, 5000)
     }
   }
 
   const handleLogout = event => {
     event.preventDefault()
-    window.localStorage.removeItem("loggedInUser")
+    window.localStorage.removeItem('loggedInUser')
     setUser(null)
   }
 
@@ -58,17 +57,17 @@ const App = () => {
     try {
       const response = await blogService.create(blogObject)
       const newBlogs = blogs.concat(response)
-      setMessage({ message: `a new blog ${response.title} by ${response.author}`, success: true });
+      setMessage({ message: `a new blog ${response.title} by ${response.author}`, success: true })
       setTimeout(() => {
-        setMessage({ message: null, success: null });
-      }, 5000);
+        setMessage({ message: null, success: null })
+      }, 5000)
       setBlogs(newBlogs)
       blogFormRef.current.toggleVisibility()
     } catch {
-      setMessage({ message: `Malformed data field`, success: false });
+      setMessage({ message: 'Malformed data field', success: false })
       setTimeout(() => {
-        setMessage({ message: null, success: null });
-      }, 5000);
+        setMessage({ message: null, success: null })
+      }, 5000)
     }
   }
 
@@ -79,8 +78,8 @@ const App = () => {
   }
 
   const removeBlog = async (id) => {
-    const response = await blogService.remove(id)
-    const newBlogs = blogs.filter(blog => blog.id != id)
+    await blogService.remove(id)
+    const newBlogs = blogs.filter(blog => blog.id !== id)
     setBlogs(newBlogs)
   }
 
@@ -95,7 +94,7 @@ const App = () => {
               <input
                 type="text"
                 value={username}
-                onChange={({target}) => setUsername(target.value)}
+                onChange={({ target }) => setUsername(target.value)}
               />
             </label>
           </div>
@@ -105,7 +104,7 @@ const App = () => {
               <input
                 type="password"
                 value={password}
-                onChange={({target}) => setPassword(target.value)}
+                onChange={({ target }) => setPassword(target.value)}
               />
             </label>
           </div>
