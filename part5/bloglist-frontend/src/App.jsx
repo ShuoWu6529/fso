@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import login from './services/login'
 import Notification from "./components/Notification";
+import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 import './index.css'
 
 const App = () => {
@@ -11,10 +13,8 @@ const App = () => {
   const [user, setUser] = useState(null)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [message, setMessage] = useState({ message: null, success: null });
+  const blogFormRef = useRef()
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -54,31 +54,34 @@ const App = () => {
     setUser(null)
   }
 
-  const createBlog = async event => {
-    event.preventDefault()
-    const blog = {
-      title,
-      author,
-      url,
-      likes : 0
-    }
+  const createBlog = async blogObject => {
     try {
-      const response = await blogService.create(blog)
+      const response = await blogService.create(blogObject)
       const newBlogs = blogs.concat(response)
-      setMessage({ message: `a new blog ${title} by ${author}`, success: true });
+      setMessage({ message: `a new blog ${response.title} by ${response.author}`, success: true });
       setTimeout(() => {
         setMessage({ message: null, success: null });
       }, 5000);
       setBlogs(newBlogs)
-      setTitle('')
-      setAuthor('')
-      setUrl('')
+      blogFormRef.current.toggleVisibility()
     } catch {
       setMessage({ message: `Malformed data field`, success: false });
       setTimeout(() => {
         setMessage({ message: null, success: null });
       }, 5000);
     }
+  }
+
+  const updateBlog = async (id, blogObject) => {
+    const response = await blogService.update(id, blogObject)
+    const newBlogs = blogs.map(blog => blog.id === id ? response : blog)
+    setBlogs(newBlogs)
+  }
+
+  const removeBlog = async (id) => {
+    const response = await blogService.remove(id)
+    const newBlogs = blogs.filter(blog => blog.id != id)
+    setBlogs(newBlogs)
   }
 
   if (user === null) {
@@ -120,39 +123,11 @@ const App = () => {
         {user.name} logged in
         <button onClick={handleLogout}>logout</button>
       </p>
-      <h2>create new</h2>
-      <form onSubmit={createBlog}>
-        <label>
-          title:
-          <input 
-            type="text" 
-            value={title}
-            onChange={({target}) => setTitle(target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          author:
-          <input 
-            type="text" 
-            value={author}
-            onChange={({target}) => setAuthor(target.value)}
-          />
-        </label>
-        <br />
-        <label>
-          url:
-          <input 
-            type="url" 
-            value={url}
-            onChange={({target}) => setUrl(target.value)}
-          />
-        </label>
-        <br />
-        <button type="submit">create</button>
-      </form>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+      <Togglable buttonLabel="create new blog" ref={blogFormRef}>
+        <BlogForm createBlog={createBlog} />
+      </Togglable>
+      {blogs.sort((a, b) => b.likes - a.likes).map(blog =>
+        <Blog key={blog.id} blog={blog} updateBlog={updateBlog} user={user} removeBlog={removeBlog}/>
       )}
     </div>
   )
