@@ -1,0 +1,19 @@
+{
+  "name": "blogtest",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test" : "playwright test",
+    "test:report" : "playwright show-report",
+    "start:backend" : "cd ../../part4/bloglist && npm run start:test",
+    "start:frontend" : "cd ../bloglist-frontend && npm run dev"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.1.2"
+  }
+}
